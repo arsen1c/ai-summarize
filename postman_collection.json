@@ -1,0 +1,340 @@
+{
+  "info": {
+    "name": "AI Content Assistant",
+    "_postman_id": "9f2c1e2a-5b3a-4b0e-8a4b-0a6a5c1b2e7d",
+    "description": "IIFL Finance Round 1 assignment - AI Content Assistant API. Import this collection into Postman, set `base_url` (defaults to http://localhost:8000), and run requests top to bottom. The \"Create Entry\" requests save their returned id into the `entry_id` collection variable automatically, so the GET /entries/{id} request downstream works without manual edits.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8000", "type": "string" },
+    { "key": "entry_id", "value": "1", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Happy path",
+      "item": [
+        {
+          "name": "Create Entry - meeting notes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "pm.test('Has summary and exactly 3 tags', function () {",
+                  "    pm.expect(body.summary).to.be.a('string').and.not.empty;",
+                  "    pm.expect(body.tags).to.be.an('array').with.lengthOf(3);",
+                  "    pm.expect(body.status).to.eql('completed');",
+                  "});",
+                  "if (body.id) {",
+                  "    pm.collectionVariables.set('entry_id', body.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Q3 revenue grew 12% year over year, driven primarily by strong performance in the retail lending segment. Churn remained flat at 4%. The team plans to hire two additional engineers in Q4 to support the new mobile onboarding flow.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/entries",
+              "host": ["{{base_url}}"],
+              "path": ["entries"]
+            },
+            "description": "Submits a meeting-notes-style excerpt. Saves the returned id into {{entry_id}} for the detail-lookup request below."
+          }
+        },
+        {
+          "name": "Create Entry - article draft",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Remote work has fundamentally changed how companies think about office space. Many organizations have downsized their physical footprint, opting instead for flexible co-working arrangements or hybrid schedules. Critics argue this erodes company culture, while proponents point to improved employee satisfaction and reduced overhead costs. The long-term impact on urban commercial real estate remains uncertain.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/entries",
+              "host": ["{{base_url}}"],
+              "path": ["entries"]
+            },
+            "description": "Submits an article-draft-style excerpt."
+          }
+        },
+        {
+          "name": "Create Entry - meeting transcript",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Alex: Okay let's kick off. First item, the onboarding flow redesign. Priya, where are we?\\nPriya: Mocks are done, dev starts Monday. Should ship by end of sprint.\\nAlex: Great. Second item, the Q4 budget review got pushed to next week because finance needs more time.\\nSam: Also flagging that the staging environment has been flaky since the last deploy, I'll file a ticket.\\nAlex: Thanks Sam. Let's wrap there.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/entries",
+              "host": ["{{base_url}}"],
+              "path": ["entries"]
+            },
+            "description": "Submits a transcript-style excerpt with multiple speakers."
+          }
+        },
+        {
+          "name": "List Entries",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response is an array', function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/entries",
+              "host": ["{{base_url}}"],
+              "path": ["entries"]
+            },
+            "description": "Lists all saved entries, most recent first."
+          }
+        },
+        {
+          "name": "List Entries - filtered by tag",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/entries?tag=q3-revenue",
+              "host": ["{{base_url}}"],
+              "path": ["entries"],
+              "query": [
+                { "key": "tag", "value": "q3-revenue", "description": "Replace with a tag that actually exists on one of your entries - check the List Entries response first." }
+              ]
+            },
+            "description": "Filters the entry list down to those whose tags include the given value. Swap the `tag` query param for one of the tags returned by a previous Create Entry / List Entries call."
+          }
+        },
+        {
+          "name": "Get Entry by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Returned entry matches requested id', function () {",
+                  "    pm.expect(pm.response.json().id).to.eql(parseInt(pm.collectionVariables.get('entry_id')));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/entries/{{entry_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["entries", "{{entry_id}}"]
+            },
+            "description": "Fetches a single entry by id. {{entry_id}} is auto-populated by the 'Create Entry - meeting notes' request above; run that first."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Validation & failure cases",
+      "item": [
+        {
+          "name": "Create Entry - empty text (expect 422)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 422 (validation error)', function () {",
+                  "    pm.response.to.have.status(422);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/entries",
+              "host": ["{{base_url}}"],
+              "path": ["entries"]
+            },
+            "description": "Backend validation: empty/blank text must be rejected before any LLM call is made."
+          }
+        },
+        {
+          "name": "Create Entry - whitespace-only text (expect 422)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 422 (validation error)', function () {",
+                  "    pm.response.to.have.status(422);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"     \"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/entries",
+              "host": ["{{base_url}}"],
+              "path": ["entries"]
+            },
+            "description": "Whitespace-only input should be treated the same as empty input."
+          }
+        },
+        {
+          "name": "Create Entry - missing text field (expect 422)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 422 (validation error)', function () {",
+                  "    pm.response.to.have.status(422);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{base_url}}/entries",
+              "host": ["{{base_url}}"],
+              "path": ["entries"]
+            },
+            "description": "Missing required field entirely."
+          }
+        },
+        {
+          "name": "Create Entry - over max length (expect 422)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set('oversized_text', 'a'.repeat(20001));"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 422 (validation error)', function () {",
+                  "    pm.response.to.have.status(422);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"{{oversized_text}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/entries",
+              "host": ["{{base_url}}"],
+              "path": ["entries"]
+            },
+            "description": "Generates a 20,001-character string in the pre-request script (over the 20,000-char max_length on the text field) and confirms it's rejected."
+          }
+        },
+        {
+          "name": "Get Entry by ID - not found (expect 404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/entries/999999",
+              "host": ["{{base_url}}"],
+              "path": ["entries", "999999"]
+            },
+            "description": "Requests an id that almost certainly doesn't exist."
+          }
+        }
+      ]
+    }
+  ]
+}

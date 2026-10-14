@@ -1,0 +1,139 @@
+.app {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  text-align: left;
+}
+
+h1 {
+  font-size: 1.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.entry-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.entry-form textarea {
+  width: 100%;
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 0.75rem;
+  resize: vertical;
+}
+
+.entry-form button {
+  align-self: flex-start;
+}
+
+.error {
+  color: #d33;
+  font-size: 0.9rem;
+}
+
+.tag-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+}
+
+.tag {
+  cursor: pointer;
+  border: 1px solid #888;
+  background: transparent;
+  color: inherit;
+  border-radius: 999px;
+  padding: 0.15rem 0.6rem;
+  font-size: 0.8rem;
+}
+
+.tag.active {
+  background: #646cff;
+  border-color: #646cff;
+  color: white;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 700px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.entry-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.entry-card {
+  border: 1px solid #ddd;
+  background: #fafafa;
+  border-radius: 8px;
+  padding: 0.75rem;
+  cursor: pointer;
+}
+
+.entry-card.selected {
+  border-color: #646cff;
+}
+
+.entry-card.failed {
+  border-color: #d33;
+}
+
+.entry-card .summary {
+  margin: 0 0 0.4rem 0;
+  font-size: 0.9rem;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.tag-pill {
+  font-size: 0.75rem;
+  background: #eee;
+  color: #333;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+}
+
+.entry-detail {
+  position: relative;
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 8px;
+  padding: 1rem;
+  font-size: 0.9rem;
+}
+
+.entry-detail .meta {
+  color: #888;
+  font-size: 0.8rem;
+}
+
+.entry-detail .original-text {
+  white-space: pre-wrap;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+}
